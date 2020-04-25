@@ -73,10 +73,12 @@ void loop()
     {
         delay(2000);                       // wait for a second
         //blink();
-        if(Serial.available())
-        {
-            Serial.print("Serial arrived");
-        }
+//        if(Serial.available())
+//        {
+//            Serial.print("Serial arrived");
+//            recvChar = Serial.read();
+//            Serial.print(recvChar);
+//        }
         if(blueToothSerial.available())
         {//check if there's any data sent from the remote bluetooth shield
             Serial.print("Something arrived");
