@@ -1,5 +1,3 @@
-#include <SoftwareSerial.h>
-
 /*
  * FM.h
  * A library for SeeedStudio Grove FM
@@ -31,9 +29,8 @@
  * THE SOFTWARE.
  */
 
-
-
 #include <SoftwareSerial.h>   //Software Serial Port
+#include <PWM.h>
 
 #define RxD         6
 #define TxD         7
@@ -42,33 +39,46 @@
 #define Input1      9
 #define Input2      10
 
-#define PINLED      5
-
 #define LEDON()     digitalWrite(PINLED, HIGH)
 #define LEDOFF()    digitalWrite(PINLED, LOW)
 
 #define DEBUG_ENABLED  1
 
 SoftwareSerial blueToothSerial(RxD,TxD);
+ 
+int frequencyOutputPin = 9;
+long frq, width;
 
 void setup()
 {
     Serial.begin(9600);
     pinMode(RxD, INPUT);
     pinMode(TxD, OUTPUT);
-    pinMode(PINLED, OUTPUT);
    
     pinMode(LED_BUILTIN, OUTPUT);
-      
-    LEDOFF();
     
+    digitalWrite(Input1, HIGH);   // turn the LED on (HIGH is the voltage level)
+    digitalWrite(Input2, LOW);   // turn the LED on (HIGH is the voltage level)
+
+     //Frequency Output
+    InitTimersSafe();
+ 
+    //default settings
+    frq = 222; //Hz
+    width = 0; //%
+    //Set Frequency
+    SetPinFrequency(frequencyOutputPin, frq);
+    //Set Width +
+    pwmWrite(frequencyOutputPin, 50 * 2.55f);
+      
     setupBlueToothConnection();
-   
 }
 
 void loop()
 {
     char recvChar;
+    String inString = "";
+    int i = 0;
     blink_fast();
     blink_slow();
     delay(2000);                       // wait for a second
@@ -79,44 +89,21 @@ void loop()
         //blink();
         if(Serial.available())
         {
-            Serial.print("Serial arrived");
+          
+            //Serial.print("Serial arrived");
             recvChar = Serial.read();
-            Serial.print(recvChar);
-            if(recvChar == '1')
+            //Serial.print(recvChar);
+            inString += recvChar;
+            if(recvChar == ' ')
             {
-                  digitalWrite(Input1, HIGH);   // turn the LED on (HIGH is the voltage level)
-                  digitalWrite(Input2, LOW);   // turn the LED on (HIGH is the voltage level)
-                  blink_fast();
-                  
+              recvChar = '\n';
+              width = inString.toInt();
+              if (width < 0 || width > 100) { error(1); break; }
+              pwmWrite(frequencyOutputPin, width * 2.55f);
+              Serial.print("Received number: ");
+              Serial.println(width);
+              inString = "";
             }
-            else if(recvChar == '0')
-            {
-                  digitalWrite(Input1, LOW);   // turn the LED on (HIGH is the voltage level)
-                  digitalWrite(Input2, HIGH);   // turn the LED on (HIGH is the voltage level)
-                  blink_slow();
-            }
-        }
-//        if(blueToothSerial.available())
-//        {//check if there's any data sent from the remote bluetooth shield
-//            Serial.print("Something arrived");
-//            recvChar = blueToothSerial.read();
-//            Serial.print(recvChar);
-//            if(recvChar == '1')
-//            {
-////                LEDON();
-//                  blink_fast();
-//                  //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-//            }
-//            else if(recvChar == '0')
-//            {
-////                  digitalWrite(LED_BUILTIN, LOW);   // turn the LED on (HIGH is the voltage level)
-//                  blink_fast();
-////                  LEDOFF();
-//            }
-//        }
-        else
-        {
-//          Serial.print("Nothing arrived");        
         }
     }
 }
@@ -169,3 +156,16 @@ void setupBlueToothConnection()
     blueToothSerial.flush();
 
 }
+
+void error(int no) {
+    Serial.print(F("Error: "));
+    switch (no)
+    {
+    case 1:
+        Serial.println(F("Width only in the range of 0 to 100."));
+        break;
+    case 2:
+        Serial.println(F("Frequency only in the range of 0 to 1000000."));
+        break;
+    }
+} //end error
