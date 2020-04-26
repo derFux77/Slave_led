@@ -38,6 +38,10 @@
 #define RxD         6
 #define TxD         7
 
+// Motor
+#define Input1      9
+#define Input2      10
+
 #define PINLED      5
 
 #define LEDON()     digitalWrite(PINLED, HIGH)
@@ -71,33 +75,45 @@ void loop()
     Serial.print("Hello Arduino here");
     while(1)
     {
-        delay(2000);                       // wait for a second
+//        delay(2000);                       // wait for a second
         //blink();
-//        if(Serial.available())
-//        {
-//            Serial.print("Serial arrived");
-//            recvChar = Serial.read();
-//            Serial.print(recvChar);
-//        }
-        if(blueToothSerial.available())
-        {//check if there's any data sent from the remote bluetooth shield
-            Serial.print("Something arrived");
-            recvChar = blueToothSerial.read();
+        if(Serial.available())
+        {
+            Serial.print("Serial arrived");
+            recvChar = Serial.read();
             Serial.print(recvChar);
-            
             if(recvChar == '1')
             {
-//                LEDON();
+                  digitalWrite(Input1, HIGH);   // turn the LED on (HIGH is the voltage level)
+                  digitalWrite(Input2, LOW);   // turn the LED on (HIGH is the voltage level)
                   blink_fast();
-                  //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+                  
             }
             else if(recvChar == '0')
             {
-//                  digitalWrite(LED_BUILTIN, LOW);   // turn the LED on (HIGH is the voltage level)
-                  blink_fast();
-//                  LEDOFF();
+                  digitalWrite(Input1, LOW);   // turn the LED on (HIGH is the voltage level)
+                  digitalWrite(Input2, HIGH);   // turn the LED on (HIGH is the voltage level)
+                  blink_slow();
             }
         }
+//        if(blueToothSerial.available())
+//        {//check if there's any data sent from the remote bluetooth shield
+//            Serial.print("Something arrived");
+//            recvChar = blueToothSerial.read();
+//            Serial.print(recvChar);
+//            if(recvChar == '1')
+//            {
+////                LEDON();
+//                  blink_fast();
+//                  //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+//            }
+//            else if(recvChar == '0')
+//            {
+////                  digitalWrite(LED_BUILTIN, LOW);   // turn the LED on (HIGH is the voltage level)
+//                  blink_fast();
+////                  LEDOFF();
+//            }
+//        }
         else
         {
 //          Serial.print("Nothing arrived");        
