@@ -35,10 +35,6 @@
 #define RxD         6
 #define TxD         7
 
-// Motor
-#define Input1      9
-#define Input2      10
-
 #define LEDON()     digitalWrite(PINLED, HIGH)
 #define LEDOFF()    digitalWrite(PINLED, LOW)
 
@@ -46,7 +42,11 @@
 
 SoftwareSerial blueToothSerial(RxD,TxD);
  
-int frequencyOutputPin = 9;
+
+// Motor
+#define Input1      10
+#define Input2      9
+int frequencyOutputPin = 3;
 long frq, width;
 
 void setup()
@@ -100,7 +100,7 @@ void loop()
               width = inString.toInt();
               if (width < 0 || width > 100) { error(1); break; }
               pwmWrite(frequencyOutputPin, width * 2.55f);
-              Serial.print("Received number: ");
+              Serial.print("PWM: ");
               Serial.println(width);
               inString = "";
             }
