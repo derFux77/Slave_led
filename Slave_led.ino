@@ -1,3 +1,5 @@
+#include <Grove_I2C_Motor_Driver.h>
+
 /*
  * FM.h
  * A library for SeeedStudio Grove FM
@@ -43,10 +45,15 @@
 SoftwareSerial blueToothSerial(RxD,TxD);
  
 
-// Motor
-#define Input1      10
-#define Input2      9
-int frequencyOutputPin = 3;
+// Motor Shield
+//#define Input1      10
+//#define Input2      9
+//int frequencyOutputPin = 3;
+
+// I2C Motor Driver
+#define I2C_ADDRESS 0x0f
+
+// PWM
 long frq, width;
 
 void setup()
@@ -57,20 +64,21 @@ void setup()
    
     pinMode(LED_BUILTIN, OUTPUT);
     
-    digitalWrite(Input1, HIGH);   // turn the LED on (HIGH is the voltage level)
-    digitalWrite(Input2, LOW);   // turn the LED on (HIGH is the voltage level)
+//    digitalWrite(Input1, HIGH);   // turn the LED on (HIGH is the voltage level)
+//    digitalWrite(Input2, LOW);   // turn the LED on (HIGH is the voltage level)
 
      //Frequency Output
     InitTimersSafe();
  
-    //default settings
-    frq = 222; //Hz
-    width = 0; //%
-    //Set Frequency
-    SetPinFrequency(frequencyOutputPin, frq);
-    //Set Width +
-    pwmWrite(frequencyOutputPin, 50 * 2.55f);
+    // PWM default settings
+//    frq = 222; //Hz
+//    width = 0; //%
+//    //Set Frequency
+//    SetPinFrequency(frequencyOutputPin, frq);
+//    //Set Width
+//    pwmWrite(frequencyOutputPin, 50 * 2.55f);
       
+    Motor.begin(I2C_ADDRESS);
     setupBlueToothConnection();
 }
 
@@ -99,7 +107,8 @@ void loop()
               recvChar = '\n';
               width = inString.toInt();
               if (width < 0 || width > 100) { error(1); break; }
-              pwmWrite(frequencyOutputPin, width * 2.55f);
+              //pwmWrite(frequencyOutputPin, width * 2.55f);
+              Motor.speed(MOTOR1 ,width);
               Serial.print("PWM: ");
               Serial.println(width);
               inString = "";
